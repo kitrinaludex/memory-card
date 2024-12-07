@@ -1,9 +1,12 @@
 import "./App.css";
 import { useState } from "react";
+import { useEffect } from "react";
 function App() {
   const [score, setScore] = useState(0);
   const [pokemon, setPokemon] = useState([]);
   const [difficulty, setDifficulty] = useState(10);
+  const [highScore, setHighScore] = useState(0);
+
   const pokemonList = pokemon.map((entry) => (
     <div className="card" key={entry.id} onClick={() => handleClick(entry)}>
       <img src={entry.image}></img>
@@ -12,9 +15,12 @@ function App() {
   ));
   function handleClick(target) {
     if (target.found) {
-      setScore(0); /* doesnt reset the found status tho */
+      setScore(0);
       fetchPokemon(difficulty);
       return;
+    }
+    if (score === highScore) {
+      setHighScore(score + 1);
     }
     setScore(score + 1);
     const newPokemon = pokemon.map((entry) => {
@@ -24,6 +30,7 @@ function App() {
         return entry;
       }
     });
+
     setPokemon(newPokemon);
   }
 
@@ -49,10 +56,27 @@ function App() {
     setPokemon(pokemon);
   }
 
-  /*   useEffect(); */ /* whenever score changes, shuffle the cards */
+  useEffect(() => {
+    let array = pokemon;
+    let currentIndex = pokemon.length;
+    while (currentIndex != 0) {
+      // Pick a remaining element...
+      let randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+    setPokemon(array);
+  }, [score, pokemon]);
   return (
     <>
-      <div>Score:{score}</div>
+      <div>
+        Score:{score} High Score:{highScore}
+      </div>
       <label>
         Difficulty:
         <input
